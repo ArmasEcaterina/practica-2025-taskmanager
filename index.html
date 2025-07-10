@@ -410,9 +410,9 @@
             // meta
             const meta = document.createElement('div');
             meta.className = 'task-meta';
-            meta.innerHTML = Creat: ${task.created.substring(0,10)};
-            if(task.deadline) meta.innerHTML +=  &nbsp; | Deadline: <b>${task.deadline}</b>;
-            meta.innerHTML +=  &nbsp; | Status: <b>${task.done ? "Finalizat" : "Activ"}</b>;
+            meta.innerHTML = `Creat: ${task.created.substring(0,10)}`;
+            if(task.deadline) meta.innerHTML += ` &nbsp; | Deadline: <b>${task.deadline}</b>`;
+            meta.innerHTML += ` &nbsp; | Status: <b>${task.done ? "Finalizat" : "Activ"}</b>`;
             li.appendChild(meta);
 
             ul.appendChild(li);
@@ -435,9 +435,9 @@
         sorted.forEach(task => {
             const li = document.createElement('li');
             li.className = "task-card" + (task.done ? " done" : "");
-            li.innerHTML = <div class="task-header"><span class="task-title">${task.title}</span>${getBadge(task.prio)}</div>;
-            if (task.desc) li.innerHTML += <div style="color:#475b82;margin-left:5px;">${task.desc}</div>;
-            li.innerHTML += <div class="task-meta">Creat: ${task.created.substring(0,10)}${task.deadline ?  | Deadline: <b>${task.deadline}</b> : ""} | Status: <b>${task.done ? "Finalizat" : "Activ"}</b></div>;
+            li.innerHTML = `<div class="task-header"><span class="task-title">${task.title}</span>${getBadge(task.prio)}</div>`;
+            if (task.desc) li.innerHTML += `<div style="color:#475b82;margin-left:5px;">${task.desc}</div>`;
+            li.innerHTML += `<div class="task-meta">Creat: ${task.created.substring(0,10)}${task.deadline ? ` | Deadline: <b>${task.deadline}</b>` : ""} | Status: <b>${task.done ? "Finalizat" : "Activ"}</b></div>`;
             ul.appendChild(li);
         });
     }
