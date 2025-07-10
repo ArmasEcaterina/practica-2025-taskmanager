@@ -19,8 +19,42 @@
 </form>
 <h2>Lista Taskuri</h2>
 <ul id="taskList">
-  <!-- Aici vor apărea taskurile adăugate -->
-</ul>
+  </ul>
+
+<script>
+  // Array pentru taskuri
+  let tasks = [];
+
+  // Referințe la elemente
+  const form = document.getElementById('taskForm');
+  const titleInput = document.getElementById('taskTitle');
+  const deadlineInput = document.getElementById('taskDeadline');
+  const prioInput = document.getElementById('taskPrio');
+  const taskList = document.getElementById('taskList');
+
+  // Funcție pentru afișarea taskurilor
+  function renderTasks() {
+    taskList.innerHTML = '';
+    tasks.forEach((task, idx) => {
+      const li = document.createElement('li');
+      li.textContent = `${task.title} (${task.prio})${task.deadline ? ' - Deadline: ' + task.deadline : ''}`;
+      taskList.appendChild(li);
+    });
+  }
+
+  // La submit formular
+  form.onsubmit = function(e) {
+    e.preventDefault();
+    const task = {
+      title: titleInput.value,
+      deadline: deadlineInput.value,
+      prio: prioInput.value
+    };
+    tasks.push(task);
+    renderTasks();
+    form.reset();
+  };
+</script>
 
 </body>
 </html>
