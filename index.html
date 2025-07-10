@@ -22,27 +22,42 @@
   </ul>
 
 <script>
-  // Array pentru taskuri
   let tasks = [];
 
-  // Referințe la elemente
+  function saveTasks() {
+    localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
+  }
+
+  function loadTasks() {
+    const data = localStorage.getItem('taskflow_tasks');
+    tasks = data ? JSON.parse(data) : [];
+  }
+  loadTasks(); 
+
   const form = document.getElementById('taskForm');
   const titleInput = document.getElementById('taskTitle');
   const deadlineInput = document.getElementById('taskDeadline');
   const prioInput = document.getElementById('taskPrio');
   const taskList = document.getElementById('taskList');
 
-  // Funcție pentru afișarea taskurilor
   function renderTasks() {
     taskList.innerHTML = '';
     tasks.forEach((task, idx) => {
       const li = document.createElement('li');
       li.textContent = `${task.title} (${task.prio})${task.deadline ? ' - Deadline: ' + task.deadline : ''}`;
+      
+      const delBtn = document.createElement('button');
+      delBtn.textContent = 'Șterge';
+      delBtn.onclick = function() {
+        tasks.splice(idx, 1);
+        saveTasks();
+        renderTasks();
+      };
+      li.appendChild(delBtn);
       taskList.appendChild(li);
     });
   }
 
-  // La submit formular
   form.onsubmit = function(e) {
     e.preventDefault();
     const task = {
@@ -51,10 +66,14 @@
       prio: prioInput.value
     };
     tasks.push(task);
+    saveTasks();
     renderTasks();
     form.reset();
   };
+
+  renderTasks();
 </script>
+
 
 </body>
 </html>
