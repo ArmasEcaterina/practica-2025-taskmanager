@@ -2,165 +2,495 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Task Manager</title>
+    <title>TaskFlow Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        background: #f4f4f9;
-        color: #222;
-        margin: 0;
-        padding: 0 0 50px 0;
-      }
-      .container {
-        max-width: 500px;
-        margin: 40px auto;
-        background: #fff;
-        border-radius: 12px;
-        box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-        padding: 32px 24px;
-      }
-      h1 {
-        text-align: center;
-        margin-bottom: 8px;
-      }
-      p {
-        text-align: center;
-        color: #666;
-        margin-top: 0;
-      }
-      form {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 22px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-      form input, form select, form button {
-        padding: 6px 10px;
-        font-size: 16px;
-        border-radius: 6px;
-        border: 1px solid #ccc;
-      }
-      form button {
-        background: #3283ff;
-        color: #fff;
-        border: none;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      form button:hover {
-        background: #1557b8;
-      }
-      #taskList {
-        list-style: none;
-        padding: 0;
-      }
-      #taskList li {
-        background: #eef2fb;
-        margin-bottom: 12px;
-        border-radius: 7px;
-        padding: 9px 14px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-      }
-      #taskList li button {
-        background: #ff4343;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 5px 12px;
-        cursor: pointer;
-        margin-left: auto;
-        font-size: 14px;
-      }
-      #taskList li button:hover {
-        background: #be2323;
-      }
-      #taskList li input[type="checkbox"] {
-        transform: scale(1.2);
-        accent-color: #1557b8;
-      }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0; 
+            background: #f7faff;
+            color: #222;
+        }
+        .navbar {
+            background: #3a60e5;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            height: 55px;
+            box-shadow: 0 2px 12px #0002;
+        }
+        .navbar .logo {
+            font-weight: bold;
+            font-size: 1.3em;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+        }
+        .navbar .logo span {
+            margin-left: 7px;
+            font-size: 1.15em;
+            color: #b4cdfa;
+        }
+        .nav-links {
+            display: flex;
+            gap: 26px;
+        }
+        .nav-link {
+            color: #e9ecfb;
+            font-weight: 500;
+            font-size: 1em;
+            text-decoration: none;
+            padding: 7px 12px;
+            border-radius: 6px;
+            transition: background 0.13s, color 0.13s;
+            cursor: pointer;
+        }
+        .nav-link.active, .nav-link:hover {
+            background: #5d7eff;
+            color: #fff;
+        }
+
+        .main-content {
+            max-width: 780px;
+            margin: 34px auto;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 3px 18px #0001;
+            padding: 38px 38px 28px 38px;
+            min-height: 330px;
+            transition: box-shadow 0.18s;
+        }
+        @media (max-width: 850px) {
+            .main-content { padding: 12px 7px; }
+        }
+
+        /* Dashboard cards */
+        .stats-cards {
+            display: flex;
+            gap: 18px;
+            margin-bottom: 38px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            flex: 1 1 160px;
+            background: #f1f6ff;
+            border-radius: 14px;
+            padding: 22px 16px 15px 22px;
+            box-shadow: 0 1px 8px #0001;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .stat-title {
+            color: #5985e4;
+            font-size: 0.99em;
+        }
+        .stat-value {
+            font-size: 2.1em;
+            font-weight: bold;
+            color: #222;
+            margin-top: 8px;
+        }
+        .stat-icon {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        /* Tabs/content hidden */
+        .page { display: none; }
+        .page.active { display: block; animation: fadein 0.2s;}
+        @keyframes fadein { from {opacity: 0;} to {opacity: 1;} }
+
+        /* Task List Styles (from previous code, with slight tweaks) */
+        .task-top-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+            align-items: center;
+        }
+        .task-top-bar input, .task-top-bar select {
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid #c5c5c5;
+            font-size: 1em;
+        }
+        #addBtn {
+            padding: 8px 16px;
+            background: #3a60e5;
+            color: #fff;
+            border-radius: 7px;
+            border: none;
+            font-weight: 500;
+            margin-left: 4px;
+            cursor: pointer;
+            transition: background 0.13s;
+        }
+        #addBtn:hover { background: #17377c; }
+        #taskForm input, #taskForm textarea, #taskForm select {
+            margin-bottom: 7px;
+        }
+        #taskForm textarea { resize:vertical; }
+        .task-list { 
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .task-card {
+            background: #f3f7fd;
+            margin-bottom: 13px;
+            padding: 15px 15px 10px 15px;
+            border-radius: 9px;
+            border-left: 6px solid #3a60e5;
+            box-shadow: 0 1px 7px #0001;
+            position: relative;
+            transition: box-shadow 0.1s;
+        }
+        .task-card.done { opacity: 0.6; border-left-color: #96d19a;}
+        .task-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        .task-title {
+            font-weight: bold; 
+            font-size: 1.08em; 
+            cursor: pointer;
+        }
+        .task-card.done .task-title { text-decoration: line-through; color: #888; }
+        .task-meta {
+            font-size: 0.96em;
+            color: #6e7fa7;
+            margin-top: 2px;
+        }
+        .badge {
+            padding: 2px 10px;
+            border-radius: 7px;
+            font-size: 0.95em;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .prio-low { background: #e2f6e7; color: #177d3e; }
+        .prio-medium { background: #fff6c9; color: #a67d00;}
+        .prio-high { background: #ffd8d8; color: #bb2424;}
+        .del, .edit {
+            background: #e74c3c;
+            border: none;
+            color: white;
+            padding: 2px 11px;
+            border-radius: 5px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .edit {
+            background: #668bee;
+            margin-left: 4px;
+        }
+        .edit:hover { background: #234086; }
+        .del:hover { background: #b9321a; }
+
+        /* About/Info */
+        .about {
+            line-height: 1.7;
+            color: #3b4b5d;
+            max-width: 600px;
+            margin: 25px auto 0 auto;
+        }
+        .about strong {
+            color: #3a60e5;
+        }
+
+        @media (max-width: 700px) {
+            .main-content { padding: 5px 2px;}
+            .navbar { flex-direction: column; gap:8px; height:auto;}
+            .nav-links { gap: 12px;}
+            .stats-cards { flex-direction: column; gap:8px;}
+        }
     </style>
 </head>
 <body>
-  <div class="container">
-    <h1>TaskFlow Manager</h1>
-    <p>Aplicație de gestionare a taskurilor pentru practica informatică 2025</p>
-    <form id="taskForm">
-      <input type="text" id="taskTitle" placeholder="Titlu task" required>
-      <input type="date" id="taskDeadline">
-      <select id="taskPrio">
-        <option value="low">Scăzută</option>
-        <option value="medium">Medie</option>
-        <option value="high">Mare</option>
-      </select>
-      <button type="submit">Adaugă Task</button>
-    </form>
-    <h2>Lista Taskuri</h2>
-    <ul id="taskList"></ul>
-  </div>
+<div class="navbar">
+    <div class="logo">
+        <svg width="25" height="25" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M16 3v4"/><path d="M8 3v4"/></svg>
+        TaskFlow <span>Manager</span>
+    </div>
+    <div class="nav-links">
+        <a class="nav-link active" data-page="dashboard">Dashboard</a>
+        <a class="nav-link" data-page="tasks">Taskuri</a>
+        <a class="nav-link" data-page="about">Despre</a>
+    </div>
+</div>
+
+<div class="main-content">
+    <!-- Dashboard -->
+    <div class="page active" id="page-dashboard">
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">📋</div>
+                <div class="stat-title">Total taskuri</div>
+                <div class="stat-value" id="stat-total">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-title">Finalizate</div>
+                <div class="stat-value" id="stat-done">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🕑</div>
+                <div class="stat-title">Active</div>
+                <div class="stat-value" id="stat-active">0</div>
+            </div>
+        </div>
+        <h3 style="color:#446ff2; margin:25px 0 10px 0;">Ultimele 5 taskuri adăugate</h3>
+        <ul class="task-list" id="last-tasks"></ul>
+    </div>
+    <!-- Taskuri -->
+    <div class="page" id="page-tasks">
+        <form id="taskForm" autocomplete="off" style="margin-bottom:12px;">
+            <div class="task-top-bar">
+                <input type="text" id="taskTitle" placeholder="Titlu task *" required>
+                <input type="date" id="taskDeadline">
+                <select id="taskPrio">
+                    <option value="low">Scăzută</option>
+                    <option value="medium">Medie</option>
+                    <option value="high">Mare</option>
+                </select>
+                <button type="submit" id="addBtn">Adaugă</button>
+            </div>
+            <textarea id="taskDesc" placeholder="Descriere (opțional)" rows="1"></textarea>
+        </form>
+        <div class="task-top-bar" style="margin-bottom: 14px;">
+            <input type="text" id="searchInput" placeholder="Caută task...">
+            <select id="filterStatus">
+                <option value="all">Toate</option>
+                <option value="active">Active</option>
+                <option value="done">Finalizate</option>
+            </select>
+            <select id="filterPrio">
+                <option value="all">Toate prioritățile</option>
+                <option value="low">Scăzută</option>
+                <option value="medium">Medie</option>
+                <option value="high">Mare</option>
+            </select>
+            <select id="sortBy">
+                <option value="created">Sortare: Dată creare</option>
+                <option value="prio">Sortare: Prioritate</option>
+                <option value="deadline">Sortare: Deadline</option>
+            </select>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+    </div>
+    <!-- Despre -->
+    <div class="page about" id="page-about">
+        <h2>Despre TaskFlow Manager</h2>
+        <p>
+            <strong>TaskFlow Manager</strong> este o aplicație web de tip single-page (SPA) pentru organizarea eficientă a activităților personale sau de echipă.<br>
+            - Adaugă, editează, șterge și marchează taskurile.<br>
+            - Filtrează, sortează, caută rapid.<br>
+            - Vezi statistici și ultimele taskuri pe dashboard.<br>
+            <br>
+            <b>Datele se salvează doar local în browser (localStorage)</b> – nu este nevoie de cont sau internet.<br>
+            <br>
+            Creat cu drag pentru practica la informatică. Ai idei de îmbunătățire? Modifică codul cum vrei!
+        </p>
+    </div>
+</div>
 <script>
-  let tasks = [];
-  function saveTasks() {
-    localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
-  }
-  function loadTasks() {
-    const data = localStorage.getItem('taskflow_tasks');
-    tasks = data ? JSON.parse(data) : [];
-  }
-  loadTasks();
-  const form = document.getElementById('taskForm');
-  const titleInput = document.getElementById('taskTitle');
-  const deadlineInput = document.getElementById('taskDeadline');
-  const prioInput = document.getElementById('taskPrio');
-  const taskList = document.getElementById('taskList');
-  function renderTasks() {
-    taskList.innerHTML = '';
-    tasks.forEach((task, idx) => {
-      const li = document.createElement('li');
-      const checkbox = document.createElement('input');
-      checkbox.type = "checkbox";
-      checkbox.checked = task.done || false;
-      checkbox.onchange = function() {
-        task.done = checkbox.checked;
-        saveTasks();
-        renderTasks();
-      };
-      const span = document.createElement('span');
-      span.textContent = `${task.title} (${task.prio})${task.deadline ? ' - Deadline: ' + task.deadline : ''}`;
-      if(task.done) {
-        span.style.textDecoration = 'line-through';
-        span.style.color = '#888';
-      }
-      const delBtn = document.createElement('button');
-      delBtn.textContent = 'Șterge';
-      delBtn.onclick = function() {
-        tasks.splice(idx, 1);
-        saveTasks();
-        renderTasks();
-      };
-      li.appendChild(checkbox);
-      li.appendChild(span);
-      li.appendChild(delBtn);
-      taskList.appendChild(li);
+    // --- PAGE NAV ---
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.onclick = function() {
+            document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+            link.classList.add('active');
+            document.querySelectorAll('.page').forEach(pg => pg.classList.remove('active'));
+            document.getElementById('page-' + link.dataset.page).classList.add('active');
+            if(link.dataset.page === "dashboard") renderDashboard();
+            if(link.dataset.page === "tasks") renderTasks();
+        }
     });
-  }
-  form.onsubmit = function(e) {
-    e.preventDefault();
-    const task = {
-      title: titleInput.value,
-      deadline: deadlineInput.value,
-      prio: prioInput.value,
-      done: false
+
+    // --- TASK DATA ---
+    let tasks = JSON.parse(localStorage.getItem('tasks-v3') || '[]');
+    let editIndex = null;
+
+    function saveTasks() {
+        localStorage.setItem('tasks-v3', JSON.stringify(tasks));
+    }
+
+    function getBadge(prio) {
+        if (prio === 'low') return '<span class="badge prio-low">Scăzută</span>';
+        if (prio === 'medium') return '<span class="badge prio-medium">Medie</span>';
+        if (prio === 'high') return '<span class="badge prio-high">Mare</span>';
+        return '';
+    }
+
+    // ---- RENDER TASKS PAGE ----
+    function renderTasks() {
+        const ul = document.getElementById('taskList');
+        const status = document.getElementById('filterStatus').value;
+        const prio = document.getElementById('filterPrio').value;
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        const sortBy = document.getElementById('sortBy').value;
+
+        let filtered = tasks.filter(t =>
+            (status === 'all' || (status === 'done' ? t.done : !t.done)) &&
+            (prio === 'all' || t.prio === prio) &&
+            (t.title.toLowerCase().includes(search) || (t.desc||'').toLowerCase().includes(search))
+        );
+        // Sortare
+        if (sortBy === 'created') {
+            filtered.sort((a, b) => new Date(a.created) - new Date(b.created));
+        } else if (sortBy === 'prio') {
+            const pOrder = { high: 0, medium: 1, low: 2 };
+            filtered.sort((a, b) => pOrder[a.prio] - pOrder[b.prio]);
+        } else if (sortBy === 'deadline') {
+            filtered.sort((a, b) => {
+                if (!a.deadline) return 1;
+                if (!b.deadline) return -1;
+                return new Date(a.deadline) - new Date(b.deadline);
+            });
+        }
+
+        ul.innerHTML = '';
+        if(filtered.length === 0) {
+            ul.innerHTML = "<li style='text-align:center;color:#999'>Niciun task găsit.</li>";
+            return;
+        }
+        filtered.forEach((task, idx) => {
+            const li = document.createElement('li');
+            li.className = "task-card" + (task.done ? " done" : "");
+            const tIdx = tasks.indexOf(task);
+
+            // header
+            const header = document.createElement('div');
+            header.className = "task-header";
+            const title = document.createElement('span');
+            title.className = "task-title";
+            title.textContent = task.title;
+            title.title = "Click pentru a marca finalizat";
+            title.onclick = () => {
+                tasks[tIdx].done = !tasks[tIdx].done;
+                saveTasks(); renderTasks(); renderDashboard();
+            };
+            header.appendChild(title);
+            header.innerHTML += getBadge(task.prio);
+
+            const btns = document.createElement('div');
+            const edit = document.createElement('button');
+            edit.className = 'edit';
+            edit.textContent = 'Editează';
+            edit.onclick = () => startEdit(tIdx);
+            btns.appendChild(edit);
+
+            const del = document.createElement('button');
+            del.className = 'del';
+            del.textContent = 'Șterge';
+            del.onclick = () => {
+                if(confirm('Sigur ștergi taskul?')) {
+                    tasks.splice(tIdx, 1);
+                    saveTasks(); renderTasks(); renderDashboard();
+                }
+            };
+            btns.appendChild(del);
+
+            header.appendChild(btns);
+            li.appendChild(header);
+
+            // desc
+            if (task.desc) {
+                const desc = document.createElement('div');
+                desc.style.color="#475b82";
+                desc.style.marginLeft="5px";
+                desc.textContent = task.desc;
+                li.appendChild(desc);
+            }
+            // meta
+            const meta = document.createElement('div');
+            meta.className = 'task-meta';
+            meta.innerHTML = Creat: ${task.created.substring(0,10)};
+            if(task.deadline) meta.innerHTML +=  &nbsp; | Deadline: <b>${task.deadline}</b>;
+            meta.innerHTML +=  &nbsp; | Status: <b>${task.done ? "Finalizat" : "Activ"}</b>;
+            li.appendChild(meta);
+
+            ul.appendChild(li);
+        });
+    }
+
+    // ---- RENDER DASHBOARD ----
+    function renderDashboard() {
+        document.getElementById('stat-total').textContent = tasks.length;
+        document.getElementById('stat-done').textContent = tasks.filter(t=>t.done).length;
+        document.getElementById('stat-active').textContent = tasks.filter(t=>!t.done).length;
+        // Last 5 tasks
+        let sorted = [...tasks].sort((a,b)=>new Date(b.created)-new Date(a.created)).slice(0,5);
+        const ul = document.getElementById('last-tasks');
+        ul.innerHTML = '';
+        if(sorted.length === 0) {
+            ul.innerHTML = "<li style='text-align:center;color:#aaa'>Nu există taskuri.</li>";
+            return;
+        }
+        sorted.forEach(task => {
+            const li = document.createElement('li');
+            li.className = "task-card" + (task.done ? " done" : "");
+            li.innerHTML = <div class="task-header"><span class="task-title">${task.title}</span>${getBadge(task.prio)}</div>;
+            if (task.desc) li.innerHTML += <div style="color:#475b82;margin-left:5px;">${task.desc}</div>;
+            li.innerHTML += <div class="task-meta">Creat: ${task.created.substring(0,10)}${task.deadline ?  | Deadline: <b>${task.deadline}</b> : ""} | Status: <b>${task.done ? "Finalizat" : "Activ"}</b></div>;
+            ul.appendChild(li);
+        });
+    }
+
+    function startEdit(idx) {
+        editIndex = idx;
+        const task = tasks[idx];
+        document.getElementById('taskTitle').value = task.title;
+        document.getElementById('taskDesc').value = task.desc || '';
+        document.getElementById('taskPrio').value = task.prio || 'low';
+        document.getElementById('taskDeadline').value = task.deadline || '';
+        document.getElementById('addBtn').textContent = 'Salvează';
+        document.getElementById('taskTitle').focus();
+        document.querySelector('[data-page="tasks"]').click();
+    }
+
+    document.getElementById('taskForm').onsubmit = function(e) {
+        e.preventDefault();
+        const title = document.getElementById('taskTitle').value.trim();
+        const desc = document.getElementById('taskDesc').value.trim();
+        const prio = document.getElementById('taskPrio').value;
+        const deadline = document.getElementById('taskDeadline').value;
+
+        if (title === "") return;
+
+        if (editIndex !== null) {
+            // Editare
+            tasks[editIndex] = {
+                ...tasks[editIndex], title, desc, prio, deadline
+            };
+            editIndex = null;
+            document.getElementById('addBtn').textContent = 'Adaugă';
+        } else {
+            // Adăugare nou
+            tasks.push({
+                title, desc, prio, deadline,
+                done: false,
+                created: new Date().toISOString()
+            });
+        }
+        saveTasks();
+        this.reset();
+        renderTasks();
+        renderDashboard();
     };
-    tasks.push(task);
-    saveTasks();
-    renderTasks();
-    form.reset();
-  };
-  renderTasks();
+
+    document.getElementById('filterStatus').onchange =
+    document.getElementById('filterPrio').onchange =
+    document.getElementById('sortBy').onchange =
+    document.getElementById('searchInput').oninput = renderTasks;
+
+    // Prima redare
+    renderDashboard();
 </script>
 </body>
 </html>
